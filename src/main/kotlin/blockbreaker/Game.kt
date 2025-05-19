@@ -3,6 +3,7 @@ package blockbreaker
 import javafx.animation.AnimationTimer
 import javafx.application.Application
 import javafx.event.EventHandler
+import javafx.geometry.Point2D
 import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
@@ -15,8 +16,8 @@ import javafx.stage.Stage
 class Game : Application() {
 
     companion object {
-        private const val WIDTH = 512
-        private const val HEIGHT = 512
+        const val WIDTH = 512
+        const val HEIGHT = 512
     }
 
     private lateinit var mainScene: Scene
@@ -33,15 +34,16 @@ class Game : Application() {
     // use a set so duplicates are not possible
     private val currentlyActiveKeys = mutableSetOf<KeyCode>()
 
+    var ball = Ball(Point2D(WIDTH / 2.0, HEIGHT / 2.0), Point2D(0.09, 0.0), Color.WHITE)
     override fun start(mainStage: Stage) {
-        mainStage.title = "Event Handling"
-
+        mainStage.title = "Block breaker"
         val root = Group()
         mainScene = Scene(root)
         mainStage.scene = mainScene
 
         val canvas = Canvas(WIDTH.toDouble(), HEIGHT.toDouble())
         root.children.add(canvas)
+        root.children.add(ball.circle)
 
         prepareActionHandlers()
 
@@ -49,7 +51,6 @@ class Game : Application() {
 
         loadGraphics()
 
-        // Main loop
         object : AnimationTimer() {
             override fun handle(currentNanoTime: Long) {
                 tickAndRender(currentNanoTime)
@@ -59,26 +60,8 @@ class Game : Application() {
         mainStage.show()
     }
 
-    private fun prepareActionHandlers() {
-        mainScene.onKeyPressed = EventHandler { event ->
-            currentlyActiveKeys.add(event.code)
-        }
-        mainScene.onKeyReleased = EventHandler { event ->
-            currentlyActiveKeys.remove(event.code)
-        }
-    }
-
-    private fun loadGraphics() {
-        // prefixed with / to indicate that the files are
-        // in the root of the "resources" folder
-        space = Image(getResource("/space.png"))
-        sun = Image(getResource("/sun.png"))
-    }
-
     private fun tickAndRender(currentNanoTime: Long) {
-        // the time elapsed since the last frame, in nanoseconds
-        // can be used for physics calculation, etc
-        val elapsedNanos = currentNanoTime - lastFrameTime
+        val deltaTime = (currentNanoTime - lastFrameTime) / 1_000_000
         lastFrameTime = currentNanoTime
 
         // clear canvas
@@ -94,10 +77,10 @@ class Game : Application() {
         graphicsContext.drawImage(sun, sunX.toDouble(), sunY.toDouble())
 
         // display crude fps counter
-        val elapsedMs = elapsedNanos / 1_000_000
-        if (elapsedMs != 0L) {
+        if (deltaTime != 0L) {
             graphicsContext.fill = Color.WHITE
-            graphicsContext.fillText("${1000 / elapsedMs} fps", 10.0, 10.0)
+            graphicsContext.fillText("${1000 / deltaTime} fps", 10.0, 10.0)
+            ball.update(deltaTime)
         }
     }
 
@@ -116,5 +99,18 @@ class Game : Application() {
         }
     }
 
+    private fun prepareActionHandlers() {
+        mainScene.onKeyPressed = EventHandler { event ->
+            currentlyActiveKeys.add(event.code)
+        }
+        mainScene.onKeyReleased = EventHandler { event ->
+            currentlyActiveKeys.remove(event.code)
+        }
+    }
+
+    private fun loadGraphics() {
+        space = Image(getResource("/space.png"))
+        sun = Image(getResource("/sun.png"))
+    }
 }
 
