@@ -3,29 +3,24 @@ package blockbreaker
 import javafx.geometry.Point2D
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
-import javafx.scene.transform.Translate
+import javafx.scene.shape.Line
 
-class Ball(var center: Point2D, var velocity: Point2D, color: Color) {
+class Ball(center: Point2D, var velocity: Point2D = Point2D(0.0, 0.3), color: Color = Color.WHITE) {
 
     companion object {
         val RADIUS = 10.0
     }
 
+    var center: Point2D
+        get() = Point2D(circle.centerX, circle.centerY)
+        set(value) {
+            circle.centerX = value.x
+            circle.centerY = value.y
+        }
+
     var circle = Circle(center.x, center.y, RADIUS, color)
 
-    fun update(deltaTime: Long) {
-        center = Point2D(center.x + deltaTime * velocity.x, center.x + deltaTime * velocity.y)
-
-        println("${center.x} ${center.y}")
-        if (center.x <= 0 || center.x >= Game.WIDTH - RADIUS) {
-            velocity = Point2D(-velocity.x, velocity.y)
-        }
-
-        if (center.y <= 0 || center.y >= Game.HEIGHT - RADIUS) {
-            velocity = Point2D(velocity.x, -velocity.y)
-        }
-
-        circle.centerX = center.x
-        circle.centerY = center.y
+    fun update(deltaTime: Double) {
+         ::center += velocity * deltaTime
     }
 }
