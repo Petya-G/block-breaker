@@ -68,11 +68,7 @@ fun Point2D.getBounceVelocity(
 
     val angle = clamped * maxBounceAngle
 
-    val speed = velocity.magnitude()
-    val newVx = speed * Math.sin(angle)
-    val newVy = -speed * Math.cos(angle)
-
-    return Point2D(newVx, newVy)
+    return Point2D(Math.sin(angle), -Math.cos(angle)) * velocity.magnitude()
 }
 
 fun Circle.clamp() {

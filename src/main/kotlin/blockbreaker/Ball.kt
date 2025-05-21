@@ -3,7 +3,6 @@ package blockbreaker
 import javafx.geometry.Point2D
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
-import javafx.scene.shape.Line
 
 class Ball(center: Point2D, speed: Double = 1.0, color: Color = Color.WHITE) {
 

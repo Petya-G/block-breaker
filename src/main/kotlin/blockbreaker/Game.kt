@@ -32,9 +32,11 @@ class Game : Application() {
 
     var paddle = Paddle()
     var ball = Ball(Point2D(WIDTH / 2.0, HEIGHT / 2.0))
+    val blocks = mutableListOf<Block>()
+    val root = Group()
+
     override fun start(mainStage: Stage) {
         mainStage.title = "Block breaker"
-        val root = Group()
         mainScene = Scene(root)
         mainStage.scene = mainScene
 
@@ -42,6 +44,23 @@ class Game : Application() {
         root.children.add(canvas)
         root.children.add(ball.circle)
         root.children.add(paddle.rectangle)
+
+        val rows = 4
+        val cols = 7
+        val blockSpacingX = 10.0
+        val blockSpacingY = 8.0
+        val startX = (WIDTH - (cols * Block.WIDTH + (cols - 1) * blockSpacingX)) / 2
+        val startY = 40.0
+
+        for (row in 0 until rows) {
+            for (col in 0 until cols) {
+                val x = startX + col * (Block.WIDTH + blockSpacingX)
+                val y = startY + row * (Block.HEIGHT + blockSpacingY)
+                val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))
+                blocks.add(block)
+                root.children.add(block.rectangle)
+            }
+        }
 
         prepareActionHandlers()
 
@@ -71,17 +90,28 @@ class Game : Application() {
 
             for (line in gameBounds.toLines()) {
                 if (ball.circle.intersects(line)) {
-                    println("HIT")
                     ball.velocity = ball.center.getNormal(ball.velocity, line)
                 }
             }
 
             for (line in paddle.rectangle.toLines()) {
                 if (ball.circle.intersects(line)) {
-                    println("HIT")
                     ball.velocity = ball.center.getBounceVelocity(ball.velocity, line)
                 }
             }
+
+            val blocksToRemove : MutableList<Block> = mutableListOf()
+            for (block in blocks) {
+                for (line in block.rectangle.toLines()) {
+                    if (ball.circle.intersects(line)) {
+                        ball.velocity = ball.center.getBounceVelocity(ball.velocity, line)
+                        root.children.remove(block.rectangle)
+                        blocksToRemove.add(block)
+                    }
+                }
+            }
+
+            blocks.removeAll(blocksToRemove)
 
             ball.update(deltaTime.toDouble())
             paddle.update(deltaTime.toDouble())
