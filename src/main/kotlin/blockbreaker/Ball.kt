@@ -5,7 +5,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 
-class Ball(center: Point2D, var velocity: Point2D = Point2D(0.0, 0.3), color: Color = Color.WHITE) {
+class Ball(center: Point2D, speed: Double = 1.0, color: Color = Color.WHITE) {
 
     companion object {
         val RADIUS = 10.0
@@ -18,9 +18,12 @@ class Ball(center: Point2D, var velocity: Point2D = Point2D(0.0, 0.3), color: Co
             circle.centerY = value.y
         }
 
+    var velocity : Point2D = Point2D(0.0, speed)
+
     var circle = Circle(center.x, center.y, RADIUS, color)
 
     fun update(deltaTime: Double) {
-         ::center += velocity * deltaTime
+        ::center += velocity * deltaTime
+        circle.clamp()
     }
 }

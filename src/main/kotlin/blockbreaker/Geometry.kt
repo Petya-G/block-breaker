@@ -58,9 +58,7 @@ fun Point2D.getNormal(velocity: Point2D, line: Line): Point2D {
 }
 
 fun Point2D.getBounceVelocity(
-    velocity: Point2D,
-    line: Line,
-    maxBounceAngle: Double = Math.toRadians(75.0)
+    velocity: Point2D, line: Line, maxBounceAngle: Double = Math.toRadians(75.0)
 ): Point2D {
     val leftX = minOf(line.startX, line.endX)
     val rightX = maxOf(line.startX, line.endX)
@@ -75,4 +73,9 @@ fun Point2D.getBounceVelocity(
     val newVy = -speed * Math.cos(angle)
 
     return Point2D(newVx, newVy)
+}
+
+fun Circle.clamp() {
+    centerX = centerX.coerceIn(radius, Game.WIDTH - radius)
+    centerY = centerY.coerceIn(radius, Game.HEIGHT - radius)
 }
