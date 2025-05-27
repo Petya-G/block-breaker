@@ -29,9 +29,9 @@ class Game : Application() {
     private var lastFrameTime: Long = System.nanoTime()
 
     var paddle = Paddle()
-    var ball = Ball(Point2D(paddle.position.x, paddle.position.y - Ball.RADIUS * 2.0))
     val root = Group()
     lateinit var blocks: EntityList<Block>
+    lateinit var balls: EntityList<Ball>
 
     var score = 0
 
@@ -44,10 +44,12 @@ class Game : Application() {
 
         val canvas = Canvas(WIDTH.toDouble(), HEIGHT.toDouble())
         root.children.add(canvas)
-        root.children.add(ball.circle)
         root.children.add(paddle.rectangle)
 
         blocks = EntityList(root)
+        balls = EntityList(root)
+        var ball = Ball(Point2D(paddle.position.x, paddle.position.y - Ball.RADIUS * 2.0))
+        balls.add(ball)
         blocks.generate()
 
         prepareActionHandlers()
@@ -74,40 +76,43 @@ class Game : Application() {
             graphicsContext.font = javafx.scene.text.Font.font(24.0)
             graphicsContext.fillText("Score: $score", WIDTH / 2.0, 30.0)
 
-            if (ball.position.y - 2.0 * Ball.RADIUS >= HEIGHT) {
-                root.children.remove(ball.circle)
-            }
-
-            for (line in gameBounds.toLines().drop(1)) {
-                if (ball.circle.intersects(line)) {
-                    ball.direction = ball.position.getNormal(ball.direction, line)
+            val ballsToRemove: MutableList<Ball> = mutableListOf()
+            for (ball in balls) {
+                if (ball.position.y - 2.0 * Ball.RADIUS >= HEIGHT) {
+                    ballsToRemove.remove(ball)
                 }
-            }
 
-            for (line in paddle.rectangle.toLines()) {
-                if (ball.circle.intersects(line)) {
-                    ball.direction =
-                        (ball.position.getBounceVelocity(ball.direction, line) + paddle.direction).normalize()
-                }
-            }
-
-            val blocksToRemove: MutableList<Block> = mutableListOf()
-            for (block in blocks) {
-                for (line in block.rectangle.toLines()) {
+                for (line in gameBounds.toLines().drop(1)) {
                     if (ball.circle.intersects(line)) {
                         ball.direction = ball.position.getNormal(ball.direction, line)
-                        root.children.remove(block.rectangle)
-                        blocksToRemove.add(block)
-                        score++
                     }
                 }
+
+                for (line in paddle.rectangle.toLines()) {
+                    if (ball.circle.intersects(line)) {
+                        ball.direction =
+                            (ball.position.getBounceVelocity(ball.direction, line) + paddle.direction).normalize()
+                    }
+                }
+
+                val blocksToRemove: MutableList<Block> = mutableListOf()
+                for (block in blocks) {
+                    for (line in block.rectangle.toLines()) {
+                        if (ball.circle.intersects(line)) {
+                            ball.direction = ball.position.getNormal(ball.direction, line)
+                            root.children.remove(block.rectangle)
+                            blocksToRemove.add(block)
+                            score++
+                        }
+                    }
+                }
+
+                blocks.removeAll(blocksToRemove)
+                ball.update(deltaTime.toDouble())
             }
-
-            blocks.removeAll(blocksToRemove)
-
-            ball.update(deltaTime.toDouble())
-            paddle.update(deltaTime.toDouble())
+            balls.removeAll(ballsToRemove)
         }
+        paddle.update(deltaTime.toDouble())
     }
 
     private fun prepareActionHandlers() {
