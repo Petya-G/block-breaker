@@ -1,10 +1,13 @@
 package blockbreaker
 
 import javafx.geometry.Point2D
+import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
+import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.reflect.KMutableProperty0
 
 fun KMutableProperty0<Point2D>.setFrom(other: Point2D) {
@@ -22,17 +25,17 @@ operator fun KMutableProperty0<Point2D>.plusAssign(other: Point2D) {
 operator fun Point2D.times(other: Double): Point2D = Point2D(x * other, y * other)
 
 fun Rectangle.toLines(): List<Line> {
-    val x1 = this.x
-    val y1 = this.y
-    val x2 = this.x + this.width
-    val y2 = this.y + this.height
+    val x1 = x
+    val y1 = y
+    val x2 = x + width
+    val y2 = y + height
 
     val top = Line(x1, y1, x2, y1)
     val right = Line(x2, y1, x2, y2)
     val bottom = Line(x2, y2, x1, y2)
     val left = Line(x1, y2, x1, y1)
 
-    return listOf(top, right, bottom, left)
+    return listOf(bottom, left, top, right)
 }
 
 fun Line.closestPoint(point: Point2D): Point2D {
@@ -68,10 +71,30 @@ fun Point2D.getBounceVelocity(
 
     val angle = clamped * maxBounceAngle
 
-    return Point2D(Math.sin(angle), -Math.cos(angle)) * velocity.magnitude()
+    return (Point2D(sin(angle), -cos(angle)) * velocity.magnitude()).normalize()
 }
 
 fun Circle.clamp() {
     centerX = centerX.coerceIn(radius, Game.WIDTH - radius)
-    centerY = centerY.coerceIn(radius, Game.HEIGHT - radius)
+    centerY = centerY.coerceAtLeast(radius)
+}
+
+operator fun Point2D.plus(other: Point2D): Point2D = Point2D(this.x + other.x, this.y + other.y)
+
+fun EntityList<Block>.generate() {
+    val rows = 4
+    val cols = 7
+    val blockSpacingX = 10.0
+    val blockSpacingY = 8.0
+    val startX = (Game.WIDTH - (cols * Block.WIDTH + (cols - 1) * blockSpacingX)) / 2
+    val startY = 40.0
+
+    for (row in 0 until rows) {
+        for (col in 0 until cols) {
+            val x = startX + col * (Block.WIDTH + blockSpacingX)
+            val y = startY + row * (Block.HEIGHT + blockSpacingY)
+            val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))
+            add(block)
+        }
+    }
 }
