@@ -1,6 +1,8 @@
 package blockbreaker
 
+import javafx.geometry.Point2D
 import javafx.scene.Group
+import javafx.scene.paint.Color
 
 class EntityList<T : Entity>(var root: Group) : MutableList<T> {
     private val entities = mutableListOf<T>()
@@ -107,5 +109,23 @@ class EntityList<T : Entity>(var root: Group) : MutableList<T> {
 
     override fun iterator(): MutableIterator<T> {
         return entities.iterator()
+    }
+}
+
+fun EntityList<Block>.generate() {
+    val rows = 4
+    val cols = 7
+    val blockSpacingX = 10.0
+    val blockSpacingY = 8.0
+    val startX = (Game.WIDTH - (cols * Block.WIDTH + (cols - 1) * blockSpacingX)) / 2
+    val startY = 40.0
+
+    for (row in 0 until rows) {
+        for (col in 0 until cols) {
+            val x = startX + col * (Block.WIDTH + blockSpacingX)
+            val y = startY + row * (Block.HEIGHT + blockSpacingY)
+            val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))
+            add(block)
+        }
     }
 }

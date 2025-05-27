@@ -34,6 +34,9 @@ class Game : Application() {
     lateinit var balls: EntityList<Ball>
 
     var score = 0
+    var lives = 3
+
+    var gameOver: Boolean = lives >= 0
 
     override fun start(mainStage: Stage) {
         mainStage.title = "Block breaker"
@@ -41,6 +44,7 @@ class Game : Application() {
         mainStage.scene = mainScene
         mainStage.isResizable = false
         mainStage.centerOnScreen()
+        mainStage.requestFocus()
 
         val canvas = Canvas(WIDTH.toDouble(), HEIGHT.toDouble())
         root.children.add(canvas)
@@ -74,12 +78,13 @@ class Game : Application() {
 
         if (deltaTime != 0L) {
             graphicsContext.font = javafx.scene.text.Font.font(24.0)
-            graphicsContext.fillText("Score: $score", WIDTH / 2.0, 30.0)
+            graphicsContext.fillText("Lives: $lives Score: $score", WIDTH / 2.0, 30.0)
 
             val ballsToRemove: MutableList<Ball> = mutableListOf()
             for (ball in balls) {
                 if (ball.position.y - 2.0 * Ball.RADIUS >= HEIGHT) {
-                    ballsToRemove.remove(ball)
+                    ballsToRemove.add(ball)
+                    lives--
                 }
 
                 for (line in gameBounds.toLines().drop(1)) {
@@ -100,7 +105,6 @@ class Game : Application() {
                     for (line in block.rectangle.toLines()) {
                         if (ball.circle.intersects(line)) {
                             ball.direction = ball.position.getNormal(ball.direction, line)
-                            root.children.remove(block.rectangle)
                             blocksToRemove.add(block)
                             score++
                         }
@@ -111,8 +115,14 @@ class Game : Application() {
                 ball.update(deltaTime.toDouble())
             }
             balls.removeAll(ballsToRemove)
+            paddle.update(deltaTime.toDouble())
+
+            if (!gameOver && balls.isEmpty()) lives--
+
+            if (gameOver) {
+
+            }
         }
-        paddle.update(deltaTime.toDouble())
     }
 
     private fun prepareActionHandlers() {
