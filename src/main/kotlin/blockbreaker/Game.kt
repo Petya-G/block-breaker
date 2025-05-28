@@ -21,17 +21,19 @@ class Game : Application() {
         val currentlyActiveKeys = mutableSetOf<KeyCode>()
         private val gameBounds = Rectangle(0.0, 0.0, WIDTH.toDouble(), HEIGHT.toDouble())
         val bottom = gameBounds.toLines()[1]
+        lateinit var blocks: EntityList<Block>
+        lateinit var balls: EntityList<Ball>
+        var stage = 1
     }
 
-    private lateinit var mainScene: Scene
-    private lateinit var graphicsContext: GraphicsContext
+    lateinit var mainScene: Scene
+    lateinit var graphicsContext: GraphicsContext
 
+    lateinit var animation: AnimationTimer
     private var lastFrameTime: Long = System.nanoTime()
 
     var paddle = Paddle()
     val root = Group()
-    lateinit var blocks: EntityList<Block>
-    lateinit var balls: EntityList<Ball>
 
     var score = 0
     var lives = 3
@@ -52,19 +54,21 @@ class Game : Application() {
 
         blocks = EntityList(root)
         balls = EntityList(root)
-        var ball = Ball(Point2D(paddle.position.x, paddle.position.y - Ball.RADIUS * 2.0))
-        balls.add(ball)
+        balls.add(Ball(Point2D(paddle.position.x, paddle.position.y - Ball.RADIUS * 2.0)))
         blocks.generate()
 
         prepareActionHandlers()
 
         graphicsContext = canvas.graphicsContext2D
 
-        object : AnimationTimer() {
+        animation = object : AnimationTimer() {
             override fun handle(currentNanoTime: Long) {
+                if (gameOver) {
+                }
                 tickAndRender(currentNanoTime)
             }
-        }.start()
+        }
+        animation.start()
 
         mainStage.show()
     }
@@ -81,10 +85,10 @@ class Game : Application() {
             graphicsContext.fillText("Lives: $lives Score: $score", WIDTH / 2.0, 30.0)
 
             val ballsToRemove: MutableList<Ball> = mutableListOf()
+            var blockToRemove: Block? = null
             for (ball in balls) {
                 if (ball.position.y - 2.0 * Ball.RADIUS >= HEIGHT) {
                     ballsToRemove.add(ball)
-                    lives--
                 }
 
                 for (line in gameBounds.toLines().drop(1)) {
@@ -100,27 +104,34 @@ class Game : Application() {
                     }
                 }
 
-                val blocksToRemove: MutableList<Block> = mutableListOf()
                 for (block in blocks) {
                     for (line in block.rectangle.toLines()) {
                         if (ball.circle.intersects(line)) {
                             ball.direction = ball.position.getNormal(ball.direction, line)
-                            blocksToRemove.add(block)
+                            blockToRemove = block
                             score++
                         }
                     }
                 }
 
-                blocks.removeAll(blocksToRemove)
                 ball.update(deltaTime.toDouble())
             }
+
+            blockToRemove?.hit()
+            blocks.remove(blockToRemove)
             balls.removeAll(ballsToRemove)
             paddle.update(deltaTime.toDouble())
 
-            if (!gameOver && balls.isEmpty()) lives--
+            gameOver = lives < 1
+            if (!gameOver && balls.isEmpty()) {
+                lives--
+                balls.add(Ball(Point2D(paddle.position.x, paddle.position.y - Ball.RADIUS * 2.0)))
+            }
 
-            if (gameOver) {
-
+            if (blocks.isEmpty()) {
+                stage++
+                balls.forEach { it.speed += 0.2 * stage }
+                blocks.generate()
             }
         }
     }

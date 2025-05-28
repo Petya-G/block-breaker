@@ -4,12 +4,13 @@ import javafx.geometry.Point2D
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Shape
+import kotlin.random.Random
 
 class Ball(
     position: Point2D,
-    direction: Point2D = Point2D(0.5, -0.35).normalize(),
-    speed: Double = 0.5,
-    color: Color = Color.WHITE
+    direction: Point2D = Point2D(if (Random.nextBoolean()) 0.5 else -0.5, -0.35).normalize(),
+    color: Color = Color.WHITE,
+    speed: Double = 0.8 + 0.2 * Game.stage
 ) : Entity(direction, speed) {
 
     companion object {

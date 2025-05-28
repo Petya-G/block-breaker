@@ -5,8 +5,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 
-class Block(position: Point2D, var color: Color) : Entity() {
-
+open class Block(position: Point2D, var color: Color) : Entity() {
     override var position: Point2D
         get() = Point2D(rectangle.x, rectangle.y)
         set(value) {
@@ -15,12 +14,12 @@ class Block(position: Point2D, var color: Color) : Entity() {
         }
 
     companion object {
-        const val WIDTH = 90.0
-        const val HEIGHT = 50.0
+        const val WIDTH = 80.0
+        const val HEIGHT = 40.0
         const val ARC = 18.0
     }
 
-    var rectangle = Rectangle(position.x, position.y, WIDTH, HEIGHT).apply {
+    open var rectangle = Rectangle(position.x, position.y, WIDTH, HEIGHT).apply {
         fill = color
         arcWidth = ARC
         arcHeight = ARC
@@ -28,4 +27,12 @@ class Block(position: Point2D, var color: Color) : Entity() {
 
     override var shape: Shape = rectangle
 
+    open fun hit(){
+    }
+}
+
+class BallBlock(position: Point2D, color: Color) : Block(position, color){
+    override fun hit() {
+       Game.balls.add(Ball(position))
+    }
 }

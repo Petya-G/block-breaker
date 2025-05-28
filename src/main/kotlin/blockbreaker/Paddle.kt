@@ -19,7 +19,7 @@ class Paddle(position: Point2D = Point2D(Game.WIDTH.toDouble() / 2.0, Game.HEIGH
         }
 
     companion object {
-        private const val WIDTH = 100.0
+        private const val WIDTH = 200.0
         private const val HEIGHT = 20.0
     }
 
@@ -39,9 +39,6 @@ class Paddle(position: Point2D = Point2D(Game.WIDTH.toDouble() / 2.0, Game.HEIGH
 
         if (currentlyActiveKeys.contains(KeyCode.RIGHT) && position.x < (Game.WIDTH.toDouble() - rectangle.width)) {
             direction = Point2D(1.0, 0.0)
-        }
-
-        if (currentlyActiveKeys.contains(KeyCode.UP)) {
         }
 
         ::position += velocity * deltaTime

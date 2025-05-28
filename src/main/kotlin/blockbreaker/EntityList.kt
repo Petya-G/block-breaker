@@ -118,14 +118,32 @@ fun EntityList<Block>.generate() {
     val blockSpacingX = 10.0
     val blockSpacingY = 8.0
     val startX = (Game.WIDTH - (cols * Block.WIDTH + (cols - 1) * blockSpacingX)) / 2
-    val startY = 40.0
+    val startY = 200
+
+    val ballBlockPositions = mutableListOf<Pair<Int, Int>>()
+
+    val random = java.util.Random()
+    while (ballBlockPositions.size < 2) {
+        val row = random.nextInt(rows)
+        val col = random.nextInt(cols)
+        val position = Pair(row, col)
+        if (!ballBlockPositions.contains(position)) {
+            ballBlockPositions.add(position)
+        }
+    }
 
     for (row in 0 until rows) {
         for (col in 0 until cols) {
             val x = startX + col * (Block.WIDTH + blockSpacingX)
             val y = startY + row * (Block.HEIGHT + blockSpacingY)
-            val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))
-            add(block)
+
+            if (Pair(row, col) in ballBlockPositions) {
+                val block = BallBlock(Point2D(x, y), Color.LIGHTBLUE)
+                add(block)
+            } else {
+                val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))
+                add(block)
+            }
         }
     }
 }
