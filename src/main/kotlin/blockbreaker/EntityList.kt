@@ -138,7 +138,7 @@ fun EntityList<Block>.generate() {
             val y = startY + row * (Block.HEIGHT + blockSpacingY)
 
             if (Pair(row, col) in ballBlockPositions) {
-                val block = BallBlock(Point2D(x, y), Color.LIGHTBLUE)
+                val block = BallBlock(Point2D(x, y))
                 add(block)
             } else {
                 val block = Block(Point2D(x, y), Color.hsb((col * 360 / cols).toDouble(), 0.7, 0.9))

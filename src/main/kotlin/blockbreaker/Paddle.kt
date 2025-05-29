@@ -19,7 +19,7 @@ class Paddle(position: Point2D = Point2D(Game.WIDTH.toDouble() / 2.0, Game.HEIGH
         }
 
     companion object {
-        private const val WIDTH = 200.0
+        private const val WIDTH = 170.0
         private const val HEIGHT = 20.0
     }
 

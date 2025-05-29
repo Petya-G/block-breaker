@@ -31,8 +31,8 @@ open class Block(position: Point2D, var color: Color) : Entity() {
     }
 }
 
-class BallBlock(position: Point2D, color: Color) : Block(position, color){
+class BallBlock(position: Point2D) : Block(position, Color.GREEN){
     override fun hit() {
-       Game.balls.add(Ball(position))
+       Game.balls.add(Ball(position, color))
     }
 }

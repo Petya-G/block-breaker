@@ -2,12 +2,15 @@ package blockbreaker
 
 import javafx.animation.AnimationTimer
 import javafx.application.Application
+import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Point2D
 import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.input.KeyCode
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -38,7 +41,7 @@ class Game : Application() {
     var score = 0
     var lives = 3
 
-    var gameOver: Boolean = lives >= 0
+    var gameOver: Boolean = false
 
     override fun start(mainStage: Stage) {
         mainStage.title = "Block breaker"
@@ -63,7 +66,28 @@ class Game : Application() {
 
         animation = object : AnimationTimer() {
             override fun handle(currentNanoTime: Long) {
-                if (gameOver) {
+                if (gameOver && balls.isEmpty()) {
+                    stop()
+
+                    Platform.runLater {
+                        val alert = Alert(Alert.AlertType.NONE)
+
+                        alert.title = "Game Over"
+                        alert.headerText = null
+
+                        val exitButton = ButtonType("Exit")
+                        val resetButton = ButtonType("Restart")
+
+                        alert.buttonTypes.setAll(exitButton, resetButton)
+
+                        val choice = alert.showAndWait()
+
+                        if (choice.isPresent && choice.get() == resetButton) {
+                            Game().start(mainStage)
+                        } else {
+                            Platform.exit()
+                        }
+                    }
                 }
                 tickAndRender(currentNanoTime)
             }

@@ -8,13 +8,13 @@ import kotlin.random.Random
 
 class Ball(
     position: Point2D,
-    direction: Point2D = Point2D(if (Random.nextBoolean()) 0.5 else -0.5, -0.35).normalize(),
     color: Color = Color.WHITE,
+    direction: Point2D = Point2D(if (Random.nextBoolean()) 0.5 else -0.5, -0.35).normalize(),
     speed: Double = 0.8 + 0.2 * Game.stage
 ) : Entity(direction, speed) {
 
     companion object {
-        val RADIUS = 20.0
+        const val RADIUS = 20.0
     }
 
     override var position: Point2D

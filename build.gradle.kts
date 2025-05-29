@@ -36,7 +36,39 @@ kotlin {
 
 javafx {
     version = "21"
-    modules = listOf("javafx.controls", "javafx.fxml")
+    modules = listOf("javafx.controls")
 }
 
 application.mainClass = "blockbreaker.MainKt"
+
+tasks.register<Jar>("fatJar") {
+
+    exclude("META-INF/LICENSE*")
+    exclude("META-INF/NOTICE*")
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+    exclude("module-info.class")
+    exclude("META-INF/versions/**")
+
+    archiveClassifier.set("fat")
+
+    // Include compiled classes
+    from(sourceSets.main.get().output)
+
+    // Include runtime dependencies
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get()
+            .filter { it.name.endsWith("jar") }
+            .map { zipTree(it) }
+    })
+
+    manifest {
+        attributes(
+            "Main-Class" to "blockbreaker.MainKt"
+        )
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
