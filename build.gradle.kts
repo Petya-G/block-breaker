@@ -42,15 +42,6 @@ javafx {
 application.mainClass = "blockbreaker.MainKt"
 
 tasks.register<Jar>("fatJar") {
-
-    exclude("META-INF/LICENSE*")
-    exclude("META-INF/NOTICE*")
-    exclude("META-INF/*.SF")
-    exclude("META-INF/*.DSA")
-    exclude("META-INF/*.RSA")
-    exclude("module-info.class")
-    exclude("META-INF/versions/**")
-
     archiveClassifier.set("fat")
 
     // Include compiled classes
